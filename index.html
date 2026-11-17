@@ -6,35 +6,44 @@
 <title>W13 | Monitoring Gerakan dan Jarak</title>
 <style>
   :root {
-    --bg:#f3f7fa; --ink:#17364b; --muted:#506b7b; --brand:#195d84;
-    --card:#ffffff; --line:#ccdce6; --ok:#1f8a5b; --warn:#c0641a; --bad:#b3372f;
+    --bg:#f4f6fb; --ink:#0f2233; --muted:#5b6b7a; --brand:#1d6fa5; --brand2:#2fa4a9;
+    --card:#ffffff; --line:#e3e9f0; --ok:#12915f; --bad:#d23c32;
+    --shadow:0 1px 2px rgba(15,34,51,.06),0 6px 20px rgba(15,34,51,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0e1620; --ink:#e6edf3; --muted:#93a4b4; --brand:#2b86c0; --brand2:#2a9aa0;
+            --card:#16212d; --line:#243242; --ok:#3ecf94; --bad:#ff6b62;
+            --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3); }
   }
   * { box-sizing:border-box; }
-  body { font:16px/1.5 Arial,Helvetica,sans-serif; margin:0; background:var(--bg); color:var(--ink); }
-  main { max-width:1040px; margin:auto; padding:20px 16px 32px; }
-  header { background:var(--brand); color:#fff; padding:18px 20px; border-radius:10px; }
-  h1 { font-size:24px; margin:0 0 6px; }
-  header div { opacity:.9; font-size:14px; }
-  .badge { display:inline-block; margin-top:10px; padding:3px 10px; border-radius:99px;
-           font-size:13px; background:rgba(255,255,255,.18); }
-  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-top:16px; }
-  .stat { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; }
-  .stat .label { font-size:13px; color:var(--muted); }
-  .stat .value { font-size:26px; font-weight:bold; margin-top:2px; }
+  body { font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+         margin:0; background:var(--bg); color:var(--ink); }
+  main { max-width:1040px; margin:auto; padding:20px 16px 36px; }
+  header { background:linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff;
+           padding:22px 24px; border-radius:16px; box-shadow:var(--shadow); }
+  h1 { font-size:clamp(20px,4vw,28px); margin:0 0 6px; letter-spacing:-.01em; }
+  header div { opacity:.92; font-size:14px; }
+  .badge { display:inline-flex; align-items:center; gap:8px; margin-top:14px; padding:5px 12px;
+           border-radius:99px; font-size:13px; background:rgba(255,255,255,.2); }
+  .badge::before { content:""; width:8px; height:8px; border-radius:50%; background:#fff; opacity:.9; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-top:18px; }
+  .stat, .card { background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); }
+  .stat { padding:14px 16px; }
+  .stat .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .stat .value { font-size:28px; font-weight:700; margin-top:4px; font-variant-numeric:tabular-nums; }
   .stat .value.on { color:var(--bad); }
   .stat .value.off { color:var(--ok); }
-  .stat .value.na { color:var(--muted); font-size:20px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-top:16px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; }
-  h2 { font-size:17px; margin:0 0 8px; }
-  iframe { width:100%; height:245px; border:0; }
-  .info { background:var(--card); border:1px solid var(--line); border-radius:10px;
-          padding:12px 16px; margin-top:16px; font-size:14px; }
-  .info ul { margin:6px 0 0; padding-left:20px; }
+  .stat .value.na { color:var(--muted); font-size:20px; font-weight:600; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:16px; margin-top:18px; }
+  .card { padding:14px 16px 16px; }
+  h2 { font-size:15px; font-weight:600; margin:0 0 10px; }
+  iframe { width:100%; height:245px; border:0; border-radius:8px; background:#fff; }
+  .card ul { margin:0; padding-left:20px; color:var(--muted); font-size:14px; }
+  .card li { margin-bottom:6px; }
   small { color:var(--muted); }
-  footer { margin-top:16px; }
-  #err { display:none; margin-top:16px; padding:10px 14px; border-radius:8px;
-         background:#fdf0e6; border:1px solid #e9c39d; color:#8a4a10; font-size:14px; }
+  footer { margin-top:20px; text-align:center; }
+  #err { display:none; margin-top:18px; padding:12px 16px; border-radius:12px;
+         background:rgba(230,150,40,.14); border:1px solid rgba(230,150,40,.4); color:var(--ink); font-size:14px; }
 </style>
 </head>
 <body>
