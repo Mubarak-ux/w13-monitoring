@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>W13 | Monitoring Gerakan dan Jarak</title>
+<style>
+  :root {
+    --bg:#f3f7fa; --ink:#17364b; --muted:#506b7b; --brand:#195d84;
+    --card:#ffffff; --line:#ccdce6; --ok:#1f8a5b; --warn:#c0641a; --bad:#b3372f;
+  }
+  * { box-sizing:border-box; }
+  body { font:16px/1.5 Arial,Helvetica,sans-serif; margin:0; background:var(--bg); color:var(--ink); }
+  main { max-width:1040px; margin:auto; padding:20px 16px 32px; }
+  header { background:var(--brand); color:#fff; padding:18px 20px; border-radius:10px; }
+  h1 { font-size:24px; margin:0 0 6px; }
+  header div { opacity:.9; font-size:14px; }
+  .badge { display:inline-block; margin-top:10px; padding:3px 10px; border-radius:99px;
+           font-size:13px; background:rgba(255,255,255,.18); }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-top:16px; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .stat .label { font-size:13px; color:var(--muted); }
+  .stat .value { font-size:26px; font-weight:bold; margin-top:2px; }
+  .stat .value.on { color:var(--bad); }
+  .stat .value.off { color:var(--ok); }
+  .stat .value.na { color:var(--muted); font-size:20px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-top:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  h2 { font-size:17px; margin:0 0 8px; }
+  iframe { width:100%; height:245px; border:0; }
+  .info { background:var(--card); border:1px solid var(--line); border-radius:10px;
+          padding:12px 16px; margin-top:16px; font-size:14px; }
+  .info ul { margin:6px 0 0; padding-left:20px; }
+  small { color:var(--muted); }
+  footer { margin-top:16px; }
+  #err { display:none; margin-top:16px; padding:10px 14px; border-radius:8px;
+         background:#fdf0e6; border:1px solid #e9c39d; color:#8a4a10; font-size:14px; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>W13 - Monitoring Gerakan dan Jarak</h1>
+  <div>NodeMCU ESP8266 &bull; Sensor PIR &bull; HC-SR04 &bull; ThingSpeak</div>
+  <span class="badge" id="updated">Memuat data terbaru...</span>
+</header>
+
+<div id="err"></div>
+
+<section class="stats" aria-label="Data terbaru">
+  <div class="stat"><div class="label">Jarak</div><div class="value na" id="v-jarak">-</div></div>
+  <div class="stat"><div class="label">Kedekatan</div><div class="value na" id="v-dekat">-</div></div>
+  <div class="stat"><div class="label">PIR (gerakan)</div><div class="value na" id="v-pir">-</div></div>
+  <div class="stat"><div class="label">Alarm</div><div class="value na" id="v-alarm">-</div></div>
+  <div class="stat"><div class="label">Rentang valid</div><div class="value na" id="v-valid">-</div></div>
+</section>
+
+<section class="grid" id="charts">
+  <div class="card"><h2>1. Jarak (cm)</h2><iframe title="Jarak" loading="lazy" data-chart="1"></iframe></div>
+  <div class="card"><h2>2. PIR (0/1)</h2><iframe title="Gerakan" loading="lazy" data-chart="2"></iframe></div>
+  <div class="card"><h2>3. Alarm (0/1)</h2><iframe title="Alarm" loading="lazy" data-chart="3"></iframe></div>
+  <div class="card"><h2>4. Kedekatan (%)</h2><iframe title="Kedekatan" loading="lazy" data-chart="4"></iframe></div>
+  <div class="card"><h2>5. Rentang valid (0/1)</h2><iframe title="Validitas" loading="lazy" data-chart="5"></iframe></div>
+  <div class="card">
+    <h2>Keterangan</h2>
+    <ul>
+      <li>Alarm ON bila PIR = 1 dan kedekatan &ge; 70%.</li>
+      <li>Alarm OFF bila kedekatan &le; 60% (histeresis).</li>
+      <li>Jarak INVALID tampil sebagai celah pada grafik, bukan 0.</li>
+      <li>Data dikirim ESP8266 tiap &plusmn;20 detik.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <small>Data demonstrasi baca-saja dari ThingSpeak. Tidak ada token atau Write API Key dalam halaman ini.</small>
+</footer>
+</main>
+
+<script>
+  // Ganti dengan Channel ID ThingSpeak (angka) milik kelompok. JANGAN isi Write API Key di sini.
+  const CHANNEL_ID = "GANTI_ID_CHANNEL";
+
+  const BASE = "https://thingspeak.mathworks.com/channels/" + CHANNEL_ID;
+  const API  = "https://api.thingspeak.com/channels/" + CHANNEL_ID + "/feeds/last.json";
+  const $ = (id) => document.getElementById(id);
+  const configured = /^\d+$/.test(CHANNEL_ID);
+
+  // Grafik (iframe)
+  document.querySelectorAll("iframe[data-chart]").forEach((f) => {
+    if (configured) f.src = BASE + "/charts/" + f.dataset.chart + "?dynamic=true&results=60";
+  });
+
+  function setVal(id, text, cls) {
+    const el = $(id);
+    el.textContent = text;
+    el.className = "value " + (cls || "");
+  }
+  function num(v) { return (v === null || v === undefined || v === "") ? null : Number(v); }
+
+  async function refresh() {
+    if (!configured) {
+      $("updated").textContent = "Channel ID belum diisi";
+      $("err").style.display = "block";
+      $("err").textContent = "Isi konstanta CHANNEL_ID di index.html dengan Channel ID ThingSpeak (angka).";
+      return;
+    }
+    try {
+      const r = await fetch(API, { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const d = await r.json();
+      $("err").style.display = "none";
+
+      const jarak = num(d.field1), pir = num(d.field2), alarm = num(d.field3),
+            dekat = num(d.field4), valid = num(d.field5);
+
+      jarak === null ? setVal("v-jarak", "INVALID", "na") : setVal("v-jarak", jarak.toFixed(1) + " cm");
+      dekat === null ? setVal("v-dekat", "INVALID", "na") : setVal("v-dekat", dekat.toFixed(1) + " %");
+      pir   === null ? setVal("v-pir", "-", "na") : setVal("v-pir", pir ? "Terdeteksi" : "Tidak ada", pir ? "on" : "off");
+      alarm === null ? setVal("v-alarm", "-", "na") : setVal("v-alarm", alarm ? "ON" : "OFF", alarm ? "on" : "off");
+      valid === null ? setVal("v-valid", "-", "na") : setVal("v-valid", valid ? "Valid" : "Di luar rentang", valid ? "off" : "na");
+
+      const t = new Date(d.created_at);
+      $("updated").textContent = "Data terakhir: " + t.toLocaleString("id-ID");
+    } catch (e) {
+      $("updated").textContent = "Gagal memuat data";
+      $("err").style.display = "block";
+      $("err").textContent = "Tidak dapat membaca channel (" + e.message +
+        "). Pastikan Channel ID benar dan Sharing = Public.";
+    }
+  }
+  refresh();
+  setInterval(refresh, 20000);
+</script>
+</body>
+</html>
