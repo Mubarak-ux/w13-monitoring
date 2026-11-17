@@ -6,143 +6,123 @@
 <title>W13 | Monitoring Gerakan dan Jarak</title>
 <style>
   :root {
-    --bg:#f5f7fb; --ink:#0f1c2b; --muted:#64748b; --line:#e5eaf2; --card:#ffffff;
-    --accent:#2563eb; --accent2:#06b6d4; --ok:#10b981; --bad:#ef4444; --warn:#f59e0b;
-    --radius:18px;
-    --shadow:0 1px 2px rgba(15,28,43,.05),0 8px 24px rgba(15,28,43,.06);
-    --glow:radial-gradient(900px 380px at 10% -10%,rgba(37,99,235,.14),transparent 60%),
-           radial-gradient(700px 320px at 95% 0%,rgba(6,182,212,.14),transparent 60%);
+    --bg:#f3f0e8; --card:#faf8f3; --ink:#171717; --muted:#6a665d; --line:#cbc5b6;
+    --accent:#8f2d1f; --ok:#2f6b3a;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Consolas,"Liberation Mono",monospace;
   }
-  /* Gelap: otomatis mengikuti perangkat, kecuali pengguna memilih Terang */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme:dark;
-      --bg:#0b1220; --ink:#e8eefc; --muted:#8b9bb4; --line:#1f2b40; --card:#111a2c;
-      --accent:#4f8cff; --accent2:#22d3ee; --ok:#34d399; --bad:#f87171; --warn:#fbbf24;
-      --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35);
-      --glow:radial-gradient(900px 380px at 10% -10%,rgba(79,140,255,.18),transparent 60%),
-             radial-gradient(700px 320px at 95% 0%,rgba(34,211,238,.14),transparent 60%);
+      --bg:#141413; --card:#1b1a18; --ink:#e9e6df; --muted:#9a968c; --line:#37352f;
+      --accent:#e8806a; --ok:#86bf92;
     }
   }
-  /* Gelap: dipilih manual lewat tombol */
   :root[data-theme="dark"] {
     color-scheme:dark;
-    --bg:#0b1220; --ink:#e8eefc; --muted:#8b9bb4; --line:#1f2b40; --card:#111a2c;
-    --accent:#4f8cff; --accent2:#22d3ee; --ok:#34d399; --bad:#f87171; --warn:#fbbf24;
-    --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35);
-    --glow:radial-gradient(900px 380px at 10% -10%,rgba(79,140,255,.18),transparent 60%),
-           radial-gradient(700px 320px at 95% 0%,rgba(34,211,238,.14),transparent 60%);
+    --bg:#141413; --card:#1b1a18; --ink:#e9e6df; --muted:#9a968c; --line:#37352f;
+    --accent:#e8806a; --ok:#86bf92;
   }
-  .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  .theme-btn { display:inline-flex; align-items:center; gap:8px; cursor:pointer; font:inherit; font-size:14px;
-               color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:99px;
-               padding:7px 14px; box-shadow:var(--shadow); transition:border-color .2s, transform .2s; }
-  .theme-btn:hover { border-color:var(--accent); transform:translateY(-1px); }
-  .theme-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   * { box-sizing:border-box; }
-  body { margin:0; color:var(--ink); background:var(--glow),var(--bg); background-attachment:fixed;
-         font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
-  main { max-width:1080px; margin:auto; padding:28px 16px 40px; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  main { max-width:1020px; margin:0 auto; padding:0 16px 40px; border-top:4px solid var(--ink); }
 
-  /* Hero */
-  header { padding:8px 4px 4px; }
-  .eyebrow { display:inline-block; font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
-             color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent);
-             padding:4px 12px; border-radius:99px; }
-  h1 { font-size:clamp(26px,5vw,40px); line-height:1.15; letter-spacing:-.025em; margin:14px 0 8px;
-       background:linear-gradient(90deg,var(--ink),var(--accent)); -webkit-background-clip:text;
-       background-clip:text; color:transparent; }
-  .sub { color:var(--muted); font-size:15px; }
-  .badge { display:inline-flex; align-items:center; gap:10px; margin-top:18px; padding:8px 16px;
-           border-radius:99px; font-size:14px; background:var(--card); border:1px solid var(--line);
-           box-shadow:var(--shadow); }
-  .badge::before { content:""; width:9px; height:9px; border-radius:50%; background:var(--warn);
-                   box-shadow:0 0 0 0 color-mix(in srgb,var(--warn) 60%,transparent); animation:pulse 2s infinite; }
-  @keyframes pulse { 70% { box-shadow:0 0 0 8px transparent; } 100% { box-shadow:0 0 0 0 transparent; } }
-  @media (prefers-reduced-motion: reduce) { .badge::before { animation:none; } * { transition:none !important; } }
+  header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+           padding:16px 0 12px; border-bottom:1px solid var(--line); }
+  h1 { font-size:20px; margin:0; letter-spacing:-.01em; }
+  .sub { color:var(--muted); font-size:13px; margin-top:2px; }
+  .theme-btn { font:inherit; font-size:13px; color:var(--ink); background:transparent;
+               border:1px solid var(--ink); border-radius:0; padding:4px 10px; cursor:pointer; }
+  .theme-btn:hover { background:var(--ink); color:var(--bg); }
 
-  /* Status cards */
-  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-top:26px; }
-  .stat, .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
-                 box-shadow:var(--shadow); transition:transform .2s, box-shadow .2s, border-color .2s; }
-  .stat:hover, .card:hover { transform:translateY(-3px); border-color:color-mix(in srgb,var(--accent) 40%,var(--line)); }
-  .stat { padding:16px 18px; position:relative; overflow:hidden; }
-  .stat::after { content:""; position:absolute; inset:0 0 auto 0; height:3px;
-                 background:linear-gradient(90deg,var(--accent),var(--accent2)); opacity:.85; }
-  .stat .icon { font-size:20px; }
-  .stat .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-top:6px; }
-  .stat .value { font-size:30px; font-weight:700; margin-top:2px; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
-  .stat .value.on  { color:var(--bad); }
-  .stat .value.off { color:var(--ok); }
-  .stat .value.na  { color:var(--muted); font-size:20px; font-weight:600; }
-  .stat:has(.value.on) { border-color:var(--bad); box-shadow:0 0 0 3px color-mix(in srgb,var(--bad) 18%,transparent),var(--shadow); }
-  .stat:has(.value.on)::after { background:var(--bad); }
+  /* Bacaan utama */
+  .readout { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:0;
+             border-bottom:1px solid var(--line); }
+  .main-val { padding:20px 20px 20px 0; border-right:1px solid var(--line); }
+  .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+  #v-jarak { font-family:var(--mono); font-weight:500; line-height:1; margin-top:10px;
+             font-size:clamp(52px,11vw,96px); letter-spacing:-.04em; }
+  .stamp { font-family:var(--mono); font-size:12px; color:var(--muted); margin-top:14px; }
+  dl { margin:0; padding:8px 0 8px 20px; }
+  dl > div { display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+             padding:10px 0; border-bottom:1px solid var(--line); }
+  dl > div:last-child { border-bottom:0; }
+  dt { font-size:13px; color:var(--muted); }
+  dd { margin:0; font-family:var(--mono); font-size:18px; text-align:right; }
+  .on { color:var(--accent); font-weight:700; }
+  .off { color:var(--ok); }
+  .na { color:var(--muted); }
+  #v-jarak.na { font-size:clamp(28px,6vw,44px); letter-spacing:0; }
+  dd.na { font-size:15px; }
 
-  /* Charts */
-  .section-title { margin:32px 4px 0; font-size:13px; font-weight:600; letter-spacing:.1em;
-                   text-transform:uppercase; color:var(--muted); }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin-top:12px; }
-  .card { padding:16px 16px 18px; }
-  h2 { font-size:15px; font-weight:600; margin:0 0 12px; display:flex; align-items:center; gap:8px; }
-  h2 .n { display:inline-grid; place-items:center; width:22px; height:22px; border-radius:7px; font-size:12px;
-          color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent2)); }
-  iframe { width:100%; height:245px; border:0; border-radius:12px; background:#fff; }
-  .card ul { margin:0; padding-left:20px; color:var(--muted); font-size:14px; }
-  .card li { margin-bottom:8px; }
-  .note { background:transparent; box-shadow:none; border-style:dashed; }
+  /* Grafik */
+  .figs { margin-top:20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px 16px; }
+  figure { margin:0; }
+  figure.wide { grid-column:1 / -1; }
+  figcaption { font-size:13px; margin-bottom:6px; }
+  figcaption b { font-weight:600; }
+  iframe { display:block; width:100%; height:245px; border:1px solid var(--line); background:#fff; }
+  figure.wide iframe { height:300px; }
 
-  footer { margin-top:28px; text-align:center; }
-  small { color:var(--muted); }
-  #err { display:none; margin-top:20px; padding:14px 18px; border-radius:14px; font-size:14px;
-         background:color-mix(in srgb,var(--warn) 14%,transparent);
-         border:1px solid color-mix(in srgb,var(--warn) 45%,transparent); }
+  .notes { margin-top:24px; padding-top:12px; border-top:1px solid var(--line);
+           font-size:13px; color:var(--muted); }
+  .notes ol { margin:6px 0 0; padding-left:20px; }
+  .notes li { margin-bottom:2px; }
+  .notes code { font-family:var(--mono); font-size:12px; }
+
+  #err { display:none; margin-top:16px; padding:10px 12px; border:1px solid var(--line);
+         border-left:4px solid var(--accent); background:var(--card); font-size:14px; }
+
+  @media (max-width:640px) {
+    .readout { grid-template-columns:1fr; }
+    .main-val { border-right:0; border-bottom:1px solid var(--line); padding-right:0; }
+    dl { padding-left:0; }
+  }
 </style>
 </head>
 <body>
 <main>
 <header>
-  <div class="topbar">
-    <span class="eyebrow">Praktikum W13</span>
-    <button class="theme-btn" id="themeBtn" type="button" aria-label="Ganti tema terang atau gelap">
-      <span id="themeIcon">&#127769;</span><span id="themeText">Gelap</span>
-    </button>
+  <div>
+    <h1>W13 - Monitoring Gerakan dan Jarak</h1>
+    <div class="sub">PIR di D0, HC-SR04 di D5/D6, NodeMCU ESP8266, channel ThingSpeak 3582072</div>
   </div>
-  <h1>Monitoring Gerakan &amp; Jarak</h1>
-  <div class="sub">NodeMCU ESP8266 &bull; Sensor PIR &bull; HC-SR04 &bull; ThingSpeak</div>
-  <span class="badge" id="updated">Memuat data terbaru...</span>
+  <button class="theme-btn" id="themeBtn" type="button" aria-label="Ganti tema terang atau gelap">Mode gelap</button>
 </header>
 
 <div id="err"></div>
 
-<section class="stats" aria-label="Data terbaru">
-  <div class="stat"><div class="icon">&#128207;</div><div class="label">Jarak</div><div class="value na" id="v-jarak">-</div></div>
-  <div class="stat"><div class="icon">&#127919;</div><div class="label">Kedekatan</div><div class="value na" id="v-dekat">-</div></div>
-  <div class="stat"><div class="icon">&#128694;</div><div class="label">PIR (gerakan)</div><div class="value na" id="v-pir">-</div></div>
-  <div class="stat"><div class="icon">&#128680;</div><div class="label">Alarm</div><div class="value na" id="v-alarm">-</div></div>
-  <div class="stat"><div class="icon">&#9989;</div><div class="label">Rentang valid</div><div class="value na" id="v-valid">-</div></div>
-</section>
-
-<div class="section-title">Grafik langsung</div>
-<section class="grid" id="charts">
-  <div class="card"><h2><span class="n">1</span>Jarak (cm)</h2><iframe title="Jarak" loading="lazy" data-chart="1"></iframe></div>
-  <div class="card"><h2><span class="n">2</span>PIR (0/1)</h2><iframe title="Gerakan" loading="lazy" data-chart="2"></iframe></div>
-  <div class="card"><h2><span class="n">3</span>Alarm (0/1)</h2><iframe title="Alarm" loading="lazy" data-chart="3"></iframe></div>
-  <div class="card"><h2><span class="n">4</span>Kedekatan (%)</h2><iframe title="Kedekatan" loading="lazy" data-chart="4"></iframe></div>
-  <div class="card"><h2><span class="n">5</span>Rentang valid (0/1)</h2><iframe title="Validitas" loading="lazy" data-chart="5"></iframe></div>
-  <div class="card note">
-    <h2>Keterangan</h2>
-    <ul>
-      <li>Alarm ON bila PIR = 1 dan kedekatan &ge; 70%.</li>
-      <li>Alarm OFF bila kedekatan &le; 60% (histeresis).</li>
-      <li>Jarak INVALID tampil sebagai celah pada grafik, bukan 0.</li>
-      <li>Data dikirim ESP8266 tiap &plusmn;20 detik.</li>
-    </ul>
+<section class="readout" aria-label="Bacaan terbaru">
+  <div class="main-val">
+    <div class="label">Jarak HC-SR04</div>
+    <div id="v-jarak" class="na">--</div>
+    <div class="stamp" id="updated">Memuat data terbaru...</div>
   </div>
+  <dl>
+    <div><dt>Kedekatan</dt><dd class="na" id="v-dekat">-</dd></div>
+    <div><dt>PIR</dt><dd class="na" id="v-pir">-</dd></div>
+    <div><dt>Alarm</dt><dd class="na" id="v-alarm">-</dd></div>
+    <div><dt>Rentang operasi</dt><dd class="na" id="v-valid">-</dd></div>
+  </dl>
 </section>
 
-<footer>
-  <small>Data demonstrasi baca-saja dari ThingSpeak. Tidak ada token atau Write API Key dalam halaman ini.</small>
-</footer>
+<section class="figs">
+  <figure class="wide"><figcaption><b>Gambar 1.</b> Jarak (cm)</figcaption><iframe title="Jarak" loading="lazy" data-chart="1"></iframe></figure>
+  <figure><figcaption><b>Gambar 2.</b> Kedekatan (%)</figcaption><iframe title="Kedekatan" loading="lazy" data-chart="4"></iframe></figure>
+  <figure><figcaption><b>Gambar 3.</b> PIR (0/1)</figcaption><iframe title="Gerakan" loading="lazy" data-chart="2"></iframe></figure>
+  <figure><figcaption><b>Gambar 4.</b> Alarm (0/1)</figcaption><iframe title="Alarm" loading="lazy" data-chart="3"></iframe></figure>
+  <figure><figcaption><b>Gambar 5.</b> Rentang valid (0/1)</figcaption><iframe title="Validitas" loading="lazy" data-chart="5"></iframe></figure>
+</section>
+
+<section class="notes">
+  Catatan
+  <ol>
+    <li>Alarm ON bila PIR = 1 dan kedekatan &ge; 70%; OFF bila kedekatan &le; 60%.</li>
+    <li>Jarak di luar rentang operasi atau ECHO timeout tampil sebagai celah pada grafik, bukan 0.</li>
+    <li>ESP8266 mengirim tiap &plusmn;20 detik. Halaman ini mengecek data baru tiap 5 detik.</li>
+    <li>Halaman baca-saja. Tidak ada Write API Key di sini.</li>
+  </ol>
+</section>
 </main>
 
 <script>
@@ -158,11 +138,7 @@
   const root = document.documentElement;
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
   function currentTheme() { return root.dataset.theme || (mq.matches ? "dark" : "light"); }
-  function paintBtn() {
-    const dark = currentTheme() === "dark";
-    $("themeIcon").textContent = dark ? "☀️" : "\u{1F319}";
-    $("themeText").textContent = dark ? "Terang" : "Gelap";
-  }
+  function paintBtn() { $("themeBtn").textContent = currentTheme() === "dark" ? "Mode terang" : "Mode gelap"; }
   try { const saved = localStorage.getItem("w13-theme"); if (saved) root.dataset.theme = saved; } catch (e) {}
   $("themeBtn").addEventListener("click", () => {
     const next = currentTheme() === "dark" ? "light" : "dark";
@@ -181,7 +157,7 @@
   function setVal(id, text, cls) {
     const el = $(id);
     el.textContent = text;
-    el.className = "value " + (cls || "");
+    el.className = cls || "";
   }
   function num(v) { return (v === null || v === undefined || v === "") ? null : Number(v); }
 
@@ -198,7 +174,7 @@
         // ThingSpeak membalas 400 ("-1") bila channel belum punya data atau belum Public.
         $("updated").textContent = "Menunggu data dari ESP8266";
         $("err").style.display = "block";
-        $("err").textContent = "Belum ada data masuk ke channel. Grafik akan muncul setelah ESP8266 mengirim data (tiap ±20 detik).";
+        $("err").textContent = "Belum ada data masuk ke channel. Grafik akan muncul setelah ESP8266 mengirim data.";
         return;
       }
       if (!r.ok) throw new Error("HTTP " + r.status);
@@ -224,7 +200,7 @@
     }
   }
   refresh();
-  setInterval(refresh, 20000);
+  setInterval(refresh, 5000); // cek data baru tiap 5 detik (ESP mengirim tiap ±20 detik)
 </script>
 </body>
 </html>
