@@ -13,13 +13,32 @@
     --glow:radial-gradient(900px 380px at 10% -10%,rgba(37,99,235,.14),transparent 60%),
            radial-gradient(700px 320px at 95% 0%,rgba(6,182,212,.14),transparent 60%);
   }
+  /* Gelap: otomatis mengikuti perangkat, kecuali pengguna memilih Terang */
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#0b1220; --ink:#e8eefc; --muted:#8b9bb4; --line:#1f2b40; --card:#111a2c;
-            --accent:#4f8cff; --accent2:#22d3ee; --ok:#34d399; --bad:#f87171; --warn:#fbbf24;
-            --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35);
-            --glow:radial-gradient(900px 380px at 10% -10%,rgba(79,140,255,.18),transparent 60%),
-                   radial-gradient(700px 320px at 95% 0%,rgba(34,211,238,.14),transparent 60%); }
+    :root:not([data-theme="light"]) {
+      color-scheme:dark;
+      --bg:#0b1220; --ink:#e8eefc; --muted:#8b9bb4; --line:#1f2b40; --card:#111a2c;
+      --accent:#4f8cff; --accent2:#22d3ee; --ok:#34d399; --bad:#f87171; --warn:#fbbf24;
+      --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35);
+      --glow:radial-gradient(900px 380px at 10% -10%,rgba(79,140,255,.18),transparent 60%),
+             radial-gradient(700px 320px at 95% 0%,rgba(34,211,238,.14),transparent 60%);
+    }
   }
+  /* Gelap: dipilih manual lewat tombol */
+  :root[data-theme="dark"] {
+    color-scheme:dark;
+    --bg:#0b1220; --ink:#e8eefc; --muted:#8b9bb4; --line:#1f2b40; --card:#111a2c;
+    --accent:#4f8cff; --accent2:#22d3ee; --ok:#34d399; --bad:#f87171; --warn:#fbbf24;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35);
+    --glow:radial-gradient(900px 380px at 10% -10%,rgba(79,140,255,.18),transparent 60%),
+           radial-gradient(700px 320px at 95% 0%,rgba(34,211,238,.14),transparent 60%);
+  }
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .theme-btn { display:inline-flex; align-items:center; gap:8px; cursor:pointer; font:inherit; font-size:14px;
+               color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:99px;
+               padding:7px 14px; box-shadow:var(--shadow); transition:border-color .2s, transform .2s; }
+  .theme-btn:hover { border-color:var(--accent); transform:translateY(-1px); }
+  .theme-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   * { box-sizing:border-box; }
   body { margin:0; color:var(--ink); background:var(--glow),var(--bg); background-attachment:fixed;
          font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
@@ -82,7 +101,12 @@
 <body>
 <main>
 <header>
-  <span class="eyebrow">Praktikum W13</span>
+  <div class="topbar">
+    <span class="eyebrow">Praktikum W13</span>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Ganti tema terang atau gelap">
+      <span id="themeIcon">&#127769;</span><span id="themeText">Gelap</span>
+    </button>
+  </div>
   <h1>Monitoring Gerakan &amp; Jarak</h1>
   <div class="sub">NodeMCU ESP8266 &bull; Sensor PIR &bull; HC-SR04 &bull; ThingSpeak</div>
   <span class="badge" id="updated">Memuat data terbaru...</span>
@@ -129,6 +153,25 @@
   const API  = "https://api.thingspeak.com/channels/" + CHANNEL_ID + "/feeds/last.json";
   const $ = (id) => document.getElementById(id);
   const configured = /^\d+$/.test(CHANNEL_ID);
+
+  // Tema terang/gelap: ikuti perangkat, bisa diganti manual dan diingat di browser
+  const root = document.documentElement;
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  function currentTheme() { return root.dataset.theme || (mq.matches ? "dark" : "light"); }
+  function paintBtn() {
+    const dark = currentTheme() === "dark";
+    $("themeIcon").textContent = dark ? "☀️" : "\u{1F319}";
+    $("themeText").textContent = dark ? "Terang" : "Gelap";
+  }
+  try { const saved = localStorage.getItem("w13-theme"); if (saved) root.dataset.theme = saved; } catch (e) {}
+  $("themeBtn").addEventListener("click", () => {
+    const next = currentTheme() === "dark" ? "light" : "dark";
+    root.dataset.theme = next;
+    try { localStorage.setItem("w13-theme", next); } catch (e) {}
+    paintBtn();
+  });
+  mq.addEventListener("change", paintBtn);
+  paintBtn();
 
   // Grafik (iframe)
   document.querySelectorAll("iframe[data-chart]").forEach((f) => {
