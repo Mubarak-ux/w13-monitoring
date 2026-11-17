@@ -56,13 +56,15 @@
   dd.na { font-size:15px; }
 
   /* Grafik */
-  .figs { margin-top:20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px 16px; }
-  figure { margin:0; }
-  figure.wide { grid-column:1 / -1; }
+  .figs { margin-top:20px; }
+  .row4 { margin-top:20px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+  figure { margin:0; min-width:0; }
   figcaption { font-size:13px; margin-bottom:6px; }
   figcaption b { font-weight:600; }
-  iframe { display:block; width:100%; height:245px; border:1px solid var(--line); background:#fff; }
+  iframe { display:block; width:100%; height:200px; border:1px solid var(--line); background:#fff; }
   figure.wide iframe { height:300px; }
+  @media (max-width:900px) { .row4 { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media (max-width:480px) { .row4 { grid-template-columns:1fr; } }
 
   .notes { margin-top:24px; padding-top:12px; border-top:1px solid var(--line);
            font-size:13px; color:var(--muted); }
@@ -108,10 +110,12 @@
 
 <section class="figs">
   <figure class="wide"><figcaption><b>Gambar 1.</b> Jarak (cm)</figcaption><iframe title="Jarak" loading="lazy" data-chart="1"></iframe></figure>
-  <figure><figcaption><b>Gambar 2.</b> Kedekatan (%)</figcaption><iframe title="Kedekatan" loading="lazy" data-chart="4"></iframe></figure>
-  <figure><figcaption><b>Gambar 3.</b> PIR (0/1)</figcaption><iframe title="Gerakan" loading="lazy" data-chart="2"></iframe></figure>
-  <figure><figcaption><b>Gambar 4.</b> Alarm (0/1)</figcaption><iframe title="Alarm" loading="lazy" data-chart="3"></iframe></figure>
-  <figure><figcaption><b>Gambar 5.</b> Rentang valid (0/1)</figcaption><iframe title="Validitas" loading="lazy" data-chart="5"></iframe></figure>
+  <div class="row4">
+    <figure><figcaption><b>Gambar 2.</b> Kedekatan (%)</figcaption><iframe title="Kedekatan" loading="lazy" data-chart="4"></iframe></figure>
+    <figure><figcaption><b>Gambar 3.</b> PIR (0/1)</figcaption><iframe title="Gerakan" loading="lazy" data-chart="2"></iframe></figure>
+    <figure><figcaption><b>Gambar 4.</b> Alarm (0/1)</figcaption><iframe title="Alarm" loading="lazy" data-chart="3"></iframe></figure>
+    <figure><figcaption><b>Gambar 5.</b> Rentang valid (0/1)</figcaption><iframe title="Validitas" loading="lazy" data-chart="5"></iframe></figure>
+  </div>
 </section>
 
 <section class="notes">
