@@ -6,71 +6,106 @@
 <title>W13 | Monitoring Gerakan dan Jarak</title>
 <style>
   :root {
-    --bg:#f4f6fb; --ink:#0f2233; --muted:#5b6b7a; --brand:#1d6fa5; --brand2:#2fa4a9;
-    --card:#ffffff; --line:#e3e9f0; --ok:#12915f; --bad:#d23c32;
-    --shadow:0 1px 2px rgba(15,34,51,.06),0 6px 20px rgba(15,34,51,.06);
+    --bg:#f5f7fb; --ink:#0f1c2b; --muted:#64748b; --line:#e5eaf2; --card:#ffffff;
+    --accent:#2563eb; --accent2:#06b6d4; --ok:#10b981; --bad:#ef4444; --warn:#f59e0b;
+    --radius:18px;
+    --shadow:0 1px 2px rgba(15,28,43,.05),0 8px 24px rgba(15,28,43,.06);
+    --glow:radial-gradient(900px 380px at 10% -10%,rgba(37,99,235,.14),transparent 60%),
+           radial-gradient(700px 320px at 95% 0%,rgba(6,182,212,.14),transparent 60%);
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#0e1620; --ink:#e6edf3; --muted:#93a4b4; --brand:#2b86c0; --brand2:#2a9aa0;
-            --card:#16212d; --line:#243242; --ok:#3ecf94; --bad:#ff6b62;
-            --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3); }
+    :root { --bg:#0b1220; --ink:#e8eefc; --muted:#8b9bb4; --line:#1f2b40; --card:#111a2c;
+            --accent:#4f8cff; --accent2:#22d3ee; --ok:#34d399; --bad:#f87171; --warn:#fbbf24;
+            --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35);
+            --glow:radial-gradient(900px 380px at 10% -10%,rgba(79,140,255,.18),transparent 60%),
+                   radial-gradient(700px 320px at 95% 0%,rgba(34,211,238,.14),transparent 60%); }
   }
   * { box-sizing:border-box; }
-  body { font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-         margin:0; background:var(--bg); color:var(--ink); }
-  main { max-width:1040px; margin:auto; padding:20px 16px 36px; }
-  header { background:linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff;
-           padding:22px 24px; border-radius:16px; box-shadow:var(--shadow); }
-  h1 { font-size:clamp(20px,4vw,28px); margin:0 0 6px; letter-spacing:-.01em; }
-  header div { opacity:.92; font-size:14px; }
-  .badge { display:inline-flex; align-items:center; gap:8px; margin-top:14px; padding:5px 12px;
-           border-radius:99px; font-size:13px; background:rgba(255,255,255,.2); }
-  .badge::before { content:""; width:8px; height:8px; border-radius:50%; background:#fff; opacity:.9; }
-  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-top:18px; }
-  .stat, .card { background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); }
-  .stat { padding:14px 16px; }
-  .stat .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
-  .stat .value { font-size:28px; font-weight:700; margin-top:4px; font-variant-numeric:tabular-nums; }
-  .stat .value.on { color:var(--bad); }
+  body { margin:0; color:var(--ink); background:var(--glow),var(--bg); background-attachment:fixed;
+         font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  main { max-width:1080px; margin:auto; padding:28px 16px 40px; }
+
+  /* Hero */
+  header { padding:8px 4px 4px; }
+  .eyebrow { display:inline-block; font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+             color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent);
+             padding:4px 12px; border-radius:99px; }
+  h1 { font-size:clamp(26px,5vw,40px); line-height:1.15; letter-spacing:-.025em; margin:14px 0 8px;
+       background:linear-gradient(90deg,var(--ink),var(--accent)); -webkit-background-clip:text;
+       background-clip:text; color:transparent; }
+  .sub { color:var(--muted); font-size:15px; }
+  .badge { display:inline-flex; align-items:center; gap:10px; margin-top:18px; padding:8px 16px;
+           border-radius:99px; font-size:14px; background:var(--card); border:1px solid var(--line);
+           box-shadow:var(--shadow); }
+  .badge::before { content:""; width:9px; height:9px; border-radius:50%; background:var(--warn);
+                   box-shadow:0 0 0 0 color-mix(in srgb,var(--warn) 60%,transparent); animation:pulse 2s infinite; }
+  @keyframes pulse { 70% { box-shadow:0 0 0 8px transparent; } 100% { box-shadow:0 0 0 0 transparent; } }
+  @media (prefers-reduced-motion: reduce) { .badge::before { animation:none; } * { transition:none !important; } }
+
+  /* Status cards */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-top:26px; }
+  .stat, .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+                 box-shadow:var(--shadow); transition:transform .2s, box-shadow .2s, border-color .2s; }
+  .stat:hover, .card:hover { transform:translateY(-3px); border-color:color-mix(in srgb,var(--accent) 40%,var(--line)); }
+  .stat { padding:16px 18px; position:relative; overflow:hidden; }
+  .stat::after { content:""; position:absolute; inset:0 0 auto 0; height:3px;
+                 background:linear-gradient(90deg,var(--accent),var(--accent2)); opacity:.85; }
+  .stat .icon { font-size:20px; }
+  .stat .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-top:6px; }
+  .stat .value { font-size:30px; font-weight:700; margin-top:2px; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .stat .value.on  { color:var(--bad); }
   .stat .value.off { color:var(--ok); }
-  .stat .value.na { color:var(--muted); font-size:20px; font-weight:600; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:16px; margin-top:18px; }
-  .card { padding:14px 16px 16px; }
-  h2 { font-size:15px; font-weight:600; margin:0 0 10px; }
-  iframe { width:100%; height:245px; border:0; border-radius:8px; background:#fff; }
+  .stat .value.na  { color:var(--muted); font-size:20px; font-weight:600; }
+  .stat:has(.value.on) { border-color:var(--bad); box-shadow:0 0 0 3px color-mix(in srgb,var(--bad) 18%,transparent),var(--shadow); }
+  .stat:has(.value.on)::after { background:var(--bad); }
+
+  /* Charts */
+  .section-title { margin:32px 4px 0; font-size:13px; font-weight:600; letter-spacing:.1em;
+                   text-transform:uppercase; color:var(--muted); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin-top:12px; }
+  .card { padding:16px 16px 18px; }
+  h2 { font-size:15px; font-weight:600; margin:0 0 12px; display:flex; align-items:center; gap:8px; }
+  h2 .n { display:inline-grid; place-items:center; width:22px; height:22px; border-radius:7px; font-size:12px;
+          color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent2)); }
+  iframe { width:100%; height:245px; border:0; border-radius:12px; background:#fff; }
   .card ul { margin:0; padding-left:20px; color:var(--muted); font-size:14px; }
-  .card li { margin-bottom:6px; }
+  .card li { margin-bottom:8px; }
+  .note { background:transparent; box-shadow:none; border-style:dashed; }
+
+  footer { margin-top:28px; text-align:center; }
   small { color:var(--muted); }
-  footer { margin-top:20px; text-align:center; }
-  #err { display:none; margin-top:18px; padding:12px 16px; border-radius:12px;
-         background:rgba(230,150,40,.14); border:1px solid rgba(230,150,40,.4); color:var(--ink); font-size:14px; }
+  #err { display:none; margin-top:20px; padding:14px 18px; border-radius:14px; font-size:14px;
+         background:color-mix(in srgb,var(--warn) 14%,transparent);
+         border:1px solid color-mix(in srgb,var(--warn) 45%,transparent); }
 </style>
 </head>
 <body>
 <main>
 <header>
-  <h1>W13 - Monitoring Gerakan dan Jarak</h1>
-  <div>NodeMCU ESP8266 &bull; Sensor PIR &bull; HC-SR04 &bull; ThingSpeak</div>
+  <span class="eyebrow">Praktikum W13</span>
+  <h1>Monitoring Gerakan &amp; Jarak</h1>
+  <div class="sub">NodeMCU ESP8266 &bull; Sensor PIR &bull; HC-SR04 &bull; ThingSpeak</div>
   <span class="badge" id="updated">Memuat data terbaru...</span>
 </header>
 
 <div id="err"></div>
 
 <section class="stats" aria-label="Data terbaru">
-  <div class="stat"><div class="label">Jarak</div><div class="value na" id="v-jarak">-</div></div>
-  <div class="stat"><div class="label">Kedekatan</div><div class="value na" id="v-dekat">-</div></div>
-  <div class="stat"><div class="label">PIR (gerakan)</div><div class="value na" id="v-pir">-</div></div>
-  <div class="stat"><div class="label">Alarm</div><div class="value na" id="v-alarm">-</div></div>
-  <div class="stat"><div class="label">Rentang valid</div><div class="value na" id="v-valid">-</div></div>
+  <div class="stat"><div class="icon">&#128207;</div><div class="label">Jarak</div><div class="value na" id="v-jarak">-</div></div>
+  <div class="stat"><div class="icon">&#127919;</div><div class="label">Kedekatan</div><div class="value na" id="v-dekat">-</div></div>
+  <div class="stat"><div class="icon">&#128694;</div><div class="label">PIR (gerakan)</div><div class="value na" id="v-pir">-</div></div>
+  <div class="stat"><div class="icon">&#128680;</div><div class="label">Alarm</div><div class="value na" id="v-alarm">-</div></div>
+  <div class="stat"><div class="icon">&#9989;</div><div class="label">Rentang valid</div><div class="value na" id="v-valid">-</div></div>
 </section>
 
+<div class="section-title">Grafik langsung</div>
 <section class="grid" id="charts">
-  <div class="card"><h2>1. Jarak (cm)</h2><iframe title="Jarak" loading="lazy" data-chart="1"></iframe></div>
-  <div class="card"><h2>2. PIR (0/1)</h2><iframe title="Gerakan" loading="lazy" data-chart="2"></iframe></div>
-  <div class="card"><h2>3. Alarm (0/1)</h2><iframe title="Alarm" loading="lazy" data-chart="3"></iframe></div>
-  <div class="card"><h2>4. Kedekatan (%)</h2><iframe title="Kedekatan" loading="lazy" data-chart="4"></iframe></div>
-  <div class="card"><h2>5. Rentang valid (0/1)</h2><iframe title="Validitas" loading="lazy" data-chart="5"></iframe></div>
-  <div class="card">
+  <div class="card"><h2><span class="n">1</span>Jarak (cm)</h2><iframe title="Jarak" loading="lazy" data-chart="1"></iframe></div>
+  <div class="card"><h2><span class="n">2</span>PIR (0/1)</h2><iframe title="Gerakan" loading="lazy" data-chart="2"></iframe></div>
+  <div class="card"><h2><span class="n">3</span>Alarm (0/1)</h2><iframe title="Alarm" loading="lazy" data-chart="3"></iframe></div>
+  <div class="card"><h2><span class="n">4</span>Kedekatan (%)</h2><iframe title="Kedekatan" loading="lazy" data-chart="4"></iframe></div>
+  <div class="card"><h2><span class="n">5</span>Rentang valid (0/1)</h2><iframe title="Validitas" loading="lazy" data-chart="5"></iframe></div>
+  <div class="card note">
     <h2>Keterangan</h2>
     <ul>
       <li>Alarm ON bila PIR = 1 dan kedekatan &ge; 70%.</li>
