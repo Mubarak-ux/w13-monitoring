@@ -107,6 +107,13 @@
     }
     try {
       const r = await fetch(API, { cache: "no-store" });
+      if (r.status === 400) {
+        // ThingSpeak membalas 400 ("-1") bila channel belum punya data atau belum Public.
+        $("updated").textContent = "Menunggu data dari ESP8266";
+        $("err").style.display = "block";
+        $("err").textContent = "Belum ada data masuk ke channel. Grafik akan muncul setelah ESP8266 mengirim data (tiap ±20 detik).";
+        return;
+      }
       if (!r.ok) throw new Error("HTTP " + r.status);
       const d = await r.json();
       $("err").style.display = "none";
